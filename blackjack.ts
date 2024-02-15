@@ -39,7 +39,7 @@ class Card {
 
 	// converts card to string
 	toString(): string{
-		return `${Rank[this.rank]} of ${Suit[this.suit]}`;
+		return ` ${cardRank[this.rank]} of ${cardSuit[this.suit]}`;
 
 	}
 
@@ -52,23 +52,24 @@ class Deck {
 	}
 	// fills deck with 1 of each card from each suit and rank
 	initDeck(){
-		for(let suit in cardSuit) {
-			if(isNaN(Number(suit))){
-				continue;
-			}
-			for (let rank in cardRank) {
-				if(!isNaN(Number(cardRank))) {
-					this.cards.push(new Card(+suit, +rank));
-				}
-			}
-		}
-	}
+    // iterate over the suit and rank values
+    Object.values(cardSuit).forEach(suit => {
+        if (typeof suit === 'number') {
+            Object.values(cardRank).forEach(rank => {
+                if (typeof rank === 'number') { 
+                    this.cards.push(new Card(suit, rank));
+                }
+            });
+        }
+    });
+}
+
 
 	// randomizes order of cards
 	shuffle(){
 		for(let i = this.cards.length - 1; i > 0; i--){
 			const j = Math.floor(Math.random()*(i+1));
-			[this.cards[i], this.cards[j]] = [this.cards[j], [this.cards[i]]]
+			[this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
 		}
 	}
 
@@ -110,13 +111,13 @@ class Player{
 
 	//returns the player's hand
 	playerHand(): string {
-		return this.hand.map(card => card.String()).join(',');
+		return this.hand.map(card => card.toString()).join(',');
 	}
 }
 
 // game logic
 class Main {
-	private rl = readline.interface({
+	private rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout
 	});
@@ -142,7 +143,7 @@ class Main {
 		if (this.player.score <= 21) {
 			this.dealerTurn();
 		}
-		this.outcome
+		this.outcome();
 		this.rl.close();
 	}
 
@@ -155,7 +156,7 @@ class Main {
 	}
 	// shows both cards from player and only 1 card from dealer
 	private showCards() {
-		console.log(`Dealer's card: ${this.dealer.hand[1].toString()}`);
+		console.log(`Dealer's card: ${this.dealer.hand[1]?.toString()}`);
 		console.log(`Player's cards: ${this.player.playerHand()}, Score: ${this.player.score}`);
 
 	}
@@ -201,7 +202,7 @@ class Main {
 		if (this.player.score > 21) {
 			console.log("Dealer wins");
 		}
-		else if (this.player.score > this.dealer.score || this.dealer > 21){
+		else if (this.player.score > this.dealer.score || this.dealer.score > 21){
 			console.log("Player wins");
 		}
 		else if (this.player.score < this.dealer.score) {
@@ -213,5 +214,8 @@ class Main {
 	}
 }
 
+// runs game
+const game = new Main();
+game.startGame().catch(err => console.error(err));
 
 
